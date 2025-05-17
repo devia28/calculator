@@ -1,37 +1,64 @@
-const input = document.getElementById("input-number");
-const baseSelect = document.getElementById("base-select");
+document.addEventListener('DOMContentLoaded', () => {
+  const baseSelect = document.getElementById('base');
+  const inputValue = document.getElementById('inputValue');
+  const convertBtn = document.getElementById('convertBtn');
 
-const decimalEl = document.getElementById("decimal");
-const binaryEl = document.getElementById("binary");
-const octalEl = document.getElementById("octal");
-const hexEl = document.getElementById("hex");
+  const outputFields = {
+    binary: document.getElementById('binary'),
+    octal: document.getElementById('octal'),
+    decimal: document.getElementById('decimal'),
+    hexadecimal: document.getElementById('hexadecimal'),
+  };
 
-function updateConversions() {
-  const inputValue = input.value.trim();
-  const base = parseInt(baseSelect.value);
+  function convertNumber() {
+    const value = inputValue.value.trim();
+    const base = baseSelect.value;
 
-  if (inputValue === "") {
-    decimalEl.textContent = "";
-    binaryEl.textContent = "";
-    octalEl.textContent = "";
-    hexEl.textContent = "";
-    return;
+    let decimalValue;
+    try {
+      if (value === '') {
+        clearOutputs();
+        return;
+      }
+
+      switch (base) {
+        case 'binary':
+          if (!/^[01]+$/.test(value)) throw 'Invalid binary';
+          decimalValue = parseInt(value, 2);
+          break;
+        case 'octal':
+          if (!/^[0-7]+$/.test(value)) throw 'Invalid octal';
+          decimalValue = parseInt(value, 8);
+          break;
+        case 'decimal':
+          if (!/^\d+$/.test(value)) throw 'Invalid decimal';
+          decimalValue = parseInt(value, 10);
+          break;
+        case 'hexadecimal':
+          if (!/^[0-9a-fA-F]+$/.test(value)) throw 'Invalid hexadecimal';
+          decimalValue = parseInt(value, 16);
+          break;
+      }
+
+      outputFields.binary.value = decimalValue.toString(2);
+      outputFields.octal.value = decimalValue.toString(8);
+      outputFields.decimal.value = decimalValue.toString(10);
+      outputFields.hexadecimal.value = decimalValue.toString(16).toUpperCase();
+
+    } catch (err) {
+      clearOutputs();
+    }
   }
 
-  let decimalValue;
-  try {
-    decimalValue = parseInt(inputValue, base);
-    if (isNaN(decimalValue)) throw "Invalid";
-  } catch (e) {
-    alert("Invalid input for base " + base);
-    return;
+  function clearOutputs() {
+    for (const key in outputFields) {
+      outputFields[key].value = '';
+    }
   }
 
-  decimalEl.textContent = decimalValue;
-  binaryEl.textContent = decimalValue.toString(2);
-  octalEl.textContent = decimalValue.toString(8);
-  hexEl.textContent = decimalValue.toString(16).toUpperCase();
-}
-
-input.addEventListener("input", updateConversions);
-baseSelect.addEventListener("change", updateConversions);
+  convertBtn.addEventListener('click', convertNumber);
+  baseSelect.addEventListener('change', () => {
+    inputValue.value = '';
+    clearOutputs();
+  });
+});
